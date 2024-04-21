@@ -58,7 +58,7 @@ public class Main extends JFrame {
         userInputField2 = new JComboBox<>(comboBoxModel2);
         userInputField2.setEditable(true);
 
-        searchButton = new JButton("Show Path");
+        searchButton = new JButton("Graph");
         searchButton.setBackground(Color.BLUE);
         cateButton = new JButton("Cluster");
         resultArea = new JTextArea();
@@ -68,11 +68,11 @@ public class Main extends JFrame {
         // Input Panel
         JPanel inputPanel = new JPanel(new BorderLayout());
         JPanel searchPanel = new JPanel(new BorderLayout());
-        searchPanel.add(new JLabel("Enter first business: "), BorderLayout.WEST);
+        searchPanel.add(new JLabel("Enter 1st business: "), BorderLayout.WEST);
         searchPanel.add(userInputField1, BorderLayout.CENTER);
 
         JPanel secondBusinessPanel = new JPanel(new BorderLayout());
-        secondBusinessPanel.add(new JLabel("Enter second business: "), BorderLayout.WEST);
+        secondBusinessPanel.add(new JLabel("Enter 2nd business: "), BorderLayout.WEST);
         secondBusinessPanel.add(userInputField2, BorderLayout.CENTER);
 
         inputPanel.add(searchPanel, BorderLayout.NORTH);
