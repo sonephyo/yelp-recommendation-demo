@@ -259,6 +259,7 @@ public class Main extends JFrame {
         }
 
         // Sorting the reviews by their total weight in descending orders
+        //git branch
         Arrays.sort(reviewList, new Comparator<Review>() {
             @Override
             public int compare(Review r1, Review r2) {
