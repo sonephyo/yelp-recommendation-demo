@@ -15,6 +15,26 @@ public class Business implements Serializable {
 
     private String Rv_text;
 
+    private Double latitude;
+
+    private Double longitude;
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
     public String getRv_text() {
         return Rv_text;
     }
@@ -63,6 +83,8 @@ public class Business implements Serializable {
                 ", categories='" + categories + '\'' +
                 ", categoriesArr=" + Arrays.toString(categoriesArr) +
                 ", Rv_text='" + Rv_text + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
                 '}';
     }
 }
