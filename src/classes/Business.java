@@ -4,6 +4,7 @@ package classes;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 public class Business implements Serializable {
 
@@ -18,6 +19,8 @@ public class Business implements Serializable {
     private Double latitude;
 
     private Double longitude;
+
+    private List<Business> closestNeighbors;
 
     public Double getLatitude() {
         return latitude;
@@ -75,6 +78,12 @@ public class Business implements Serializable {
         this.categoriesArr = categoriesArr;
     }
 
+    public List<Business> getClosestNeighbors() {
+        return closestNeighbors;
+    }
+    public void setClosestNeighbors(List<Business> closestNeighbors) {
+        this.closestNeighbors = closestNeighbors;
+    }
     @Override
     public String toString() {
         return "Business{" +

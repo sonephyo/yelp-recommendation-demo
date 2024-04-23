@@ -58,9 +58,46 @@ public class fileReader {
                 }
         }
         brReview.close();
+//        for (Business business : businessHashtable.values()){
+//            System.out.println(business);
+
         for (Business business : businessHashtable.values()){
-            System.out.println(business);
+            System.out.println("Business: " + business.getBusiness_id());
+            findNeighbors(business, businessHashtable);
+            List<Business> neighbors = business.getClosestNeighbors();
+            if(neighbors!= null) {
+                for (Business neighbor : neighbors) {
+                    double distance = Haversine(business, neighbor);
+                    System.out.println(" Neighbor id: " + neighbor.getBusiness_id() + " Name: " + neighbor.getName() +
+                            ", Distance: " + distance + " km");
+                }
+            }
+            System.out.println();
         }
     }
+    public static double Haversine(Business b1, Business b2 ) {
+        double eRadius = 6371;
+        double dLat = Math.toRadians(b2.getLatitude()-b2.getLatitude());
+        double dLon = Math.toRadians(b2.getLongitude()-b1.getLatitude());
+        double lat1 = Math.toRadians(b1.getLatitude());
+        double lat2 = Math.toRadians(b2.getLatitude());
 
+        double a = Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math.cos(lat2);
+        double c = 2* Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return eRadius * c;
+    }
+
+    public static void findNeighbors (Business business, Hashtable<String, Business> businessHashtable){
+        PriorityQueue<Business> closestNeighbors = new PriorityQueue<>(Comparator.comparingDouble(b->Haversine(business, b)));
+        for (Business otherB : businessHashtable.values()){
+            if(!business.equals(otherB)){
+                closestNeighbors.offer(otherB);
+                if(closestNeighbors.size()>4){
+                    closestNeighbors.poll();
+                }
+            }
+        }
+        List<Business> neighbors = new ArrayList<>(closestNeighbors);
+        business.setClosestNeighbors(neighbors);
+    }
 }
