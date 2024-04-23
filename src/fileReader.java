@@ -45,25 +45,31 @@ public class fileReader {
         int reviewLengthToParse = 10000;
 
         Review[] reviewList = new Review[reviewLengthToParse];
-        Set<String> uniqueBusinessNames = new HashSet<>(); // to keep track of unique business names
+        Set<String> uniqueBusinessIds = new HashSet<>(); // to keep track of unique business names
 
-        while ((lineReview = brReview.readLine()) != null && reviewcount < reviewLengthToParse) {
-                Review r1 = gsonReview.fromJson(lineReview, Review.class);
-                Business business = businessHashtable.get(r1.getBusiness_id());
-                if (business != null && !uniqueBusinessNames.contains(business.getName())) {
-                    business.setRv_text(r1.getReview_text());
-                    uniqueBusinessNames.add(business.getName());
-                    reviewList[reviewcount] = r1;
-                    reviewcount++;
-                }
+        while ((lineReview = brReview.readLine()) != null) {
+            Review r1 = gsonReview.fromJson(lineReview, Review.class);
+            Business business = businessHashtable.get(r1.getBusiness_id());
+            if (business != null && !uniqueBusinessIds.contains(business.getBusiness_id()) && r1.getReview_text() != null) {
+                business.setRv_text(r1.getReview_text());
+                uniqueBusinessIds.add(business.getBusiness_id());
+                reviewcount++;
+            }
         }
         brReview.close();
-//        for (Business business : businessHashtable.values()){
+//        for (Business business : businessHashtable.values()) {
 //            System.out.println(business);
-
+//        }
+//        for (String id: businessHashtable.keySet()) {
+//            if (businessHashtable.get(id).getRv_text() == null) {
+//                System.out.println(businessHashtable.get(id));
+//            }
+//        }
+        for (Business business : businessHashtable.values()){
+            findNeighbors(business, businessHashtable);
+        }
         for (Business business : businessHashtable.values()){
             System.out.println("Business: " + business.getBusiness_id());
-            findNeighbors(business, businessHashtable);
             List<Business> neighbors = business.getClosestNeighbors();
             if(neighbors!= null) {
                 for (Business neighbor : neighbors) {
@@ -77,8 +83,8 @@ public class fileReader {
     }
     public static double Haversine(Business b1, Business b2 ) {
         double eRadius = 6371;
-        double dLat = Math.toRadians(b2.getLatitude()-b2.getLatitude());
-        double dLon = Math.toRadians(b2.getLongitude()-b1.getLatitude());
+        double dLat = Math.toRadians(b2.getLatitude()-b1.getLatitude());
+        double dLon = Math.toRadians(b2.getLongitude()-b1.getLongitude());
         double lat1 = Math.toRadians(b1.getLatitude());
         double lat2 = Math.toRadians(b2.getLatitude());
 
