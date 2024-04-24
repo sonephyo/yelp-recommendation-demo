@@ -9,7 +9,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 
-public class fileReader {
+public class fileReader implements Serializable {
+
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
@@ -57,30 +58,38 @@ public class fileReader {
             }
         }
         brReview.close();
-//        for (Business business : businessHashtable.values()) {
-//            System.out.println(business);
-//        }
-//        for (String id: businessHashtable.keySet()) {
-//            if (businessHashtable.get(id).getRv_text() == null) {
-//                System.out.println(businessHashtable.get(id));
-//            }
-//        }
+
         for (Business business : businessHashtable.values()){
             findNeighbors(business, businessHashtable);
+
+            String fileName = business.getBusiness_id() + ".ser";
+            FileOutputStream fileOut = new FileOutputStream("src/file_with_neighbours/" + fileName);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(business);
+            out.close();
+            fileOut.close();
         }
-        for (Business business : businessHashtable.values()){
-            System.out.println("Business: " + business.getBusiness_id());
-            List<Business> neighbors = business.getClosestNeighbors();
-            if(neighbors!= null) {
-                for (Business neighbor : neighbors) {
-                    double distance = Haversine(business, neighbor);
-                    System.out.println(" Neighbor id: " + neighbor.getBusiness_id() + " Name: " + neighbor.getName() +
-                            ", Distance: " + distance + " km");
-                }
-            }
-            System.out.println();
-        }
+
+//        for (Business business : businessHashtable.values()){
+//            System.out.println("Business: " + business.getName() + "(" + business.getLatitude() + ", " + business.getLongitude() + ")" );
+//            List<Business> neighbors = business.getClosestNeighbors();
+//            if(neighbors!= null) {
+//                for (Business neighbor : neighbors) {
+//                    double distance = Haversine(business, neighbor);
+//                    System.out.println(" Neighbor id: " + neighbor.getBusiness_id() + "(" + neighbor.getLatitude() + ", " + neighbor.getLongitude() + ")" + " Name: " + neighbor.getName() +
+//                            ", Distance: " + distance + " km");
+//                }
+//            }
+//            System.out.println();
+//        }
     }
+
+    /**
+     * - Haversine formula default
+     * @param b1 - business 1
+     * @param b2 - business 2
+     * @return the haversine distance
+     */
     public static double Haversine(Business b1, Business b2 ) {
         double eRadius = 6371;
         double dLat = Math.toRadians(b2.getLatitude()-b1.getLatitude());
@@ -89,12 +98,19 @@ public class fileReader {
         double lat2 = Math.toRadians(b2.getLatitude());
 
         double a = Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math.cos(lat2);
-        double c = 2* Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double c = 2 * Math.asin(Math.sqrt(a));
         return eRadius * c;
     }
 
+    /**
+     * Method for finding the 4 closest business and storing in that business as instances
+     * @param business - the main business
+     * @param businessHashtable - all other businesses that are going to compare the main business
+     */
     public static void findNeighbors (Business business, Hashtable<String, Business> businessHashtable){
-        PriorityQueue<Business> closestNeighbors = new PriorityQueue<>(Comparator.comparingDouble(b->Haversine(business, b)));
+        PriorityQueue<Business> closestNeighbors = new PriorityQueue<>(
+                Comparator.comparingDouble((Business b) -> Haversine(b, business)).reversed()
+        );
         for (Business otherB : businessHashtable.values()){
             if(!business.equals(otherB)){
                 closestNeighbors.offer(otherB);
