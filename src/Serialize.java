@@ -29,8 +29,6 @@ public class Serialize {
 
                 Business b1  = (Business) in.readObject();
 
-
-
                 String fileNameString = String.valueOf(files[i]).replaceAll("src/files/","");
 
                 btree.insert(b1.getName(), fileNameString);
@@ -47,10 +45,6 @@ public class Serialize {
         BTree b = (BTree) in.readObject();
 
         b.traverse();
-
-
-
-
     }
 
 
@@ -109,14 +103,6 @@ public class Serialize {
                 //uniqueBusinessNames.add(business.getName());
             }
         }
-
-
-
     }
 
 }
-
-
-
-
-

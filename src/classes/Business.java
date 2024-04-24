@@ -4,6 +4,7 @@ package classes;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 public class Business implements Serializable {
 
@@ -14,6 +15,28 @@ public class Business implements Serializable {
     private String[] categoriesArr;
 
     private String Rv_text;
+
+    private Double latitude;
+
+    private Double longitude;
+
+    private List<Business> closestNeighbors;
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 
     public String getRv_text() {
         return Rv_text;
@@ -55,6 +78,12 @@ public class Business implements Serializable {
         this.categoriesArr = categoriesArr;
     }
 
+    public List<Business> getClosestNeighbors() {
+        return closestNeighbors;
+    }
+    public void setClosestNeighbors(List<Business> closestNeighbors) {
+        this.closestNeighbors = closestNeighbors;
+    }
     @Override
     public String toString() {
         return "Business{" +
@@ -63,6 +92,8 @@ public class Business implements Serializable {
                 ", categories='" + categories + '\'' +
                 ", categoriesArr=" + Arrays.toString(categoriesArr) +
                 ", Rv_text='" + Rv_text + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
                 '}';
     }
 }

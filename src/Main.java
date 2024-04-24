@@ -20,7 +20,9 @@ import java.awt.*;
 
 public class Main extends JFrame {
 
-    private static JComboBox<String> userInputField;
+    private static JComboBox<String> userInputField1;
+
+    private static JComboBox<String> userInputField2;
     private JButton searchButton;
     private JTextArea resultArea;
 
@@ -35,41 +37,64 @@ public class Main extends JFrame {
         setLayout(new BorderLayout());
 
 
-        DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>();
-        comboBoxModel.addElement("Sukho Thai");
-        comboBoxModel.addElement("Village Tap Room");
-        comboBoxModel.addElement("The Silverspoon");
-        comboBoxModel.addElement("Denny's");
-        comboBoxModel.addElement("Cheeseburger In Paradise");
-        comboBoxModel.addElement("Suite Six");
-        comboBoxModel.addElement("Helena Avenue Bakery");
-        comboBoxModel.addElement("All About Hair");
-        comboBoxModel.addElement("Plush");
-        comboBoxModel.addElement("Sake House");
+        DefaultComboBoxModel<String> comboBoxModel1 = new DefaultComboBoxModel<>();
+        comboBoxModel1.addElement("Sukho Thai");
+        comboBoxModel1.addElement("Village Tap Room");
+        comboBoxModel1.addElement("The Silverspoon");
+        comboBoxModel1.addElement("Denny's");
+        comboBoxModel1.addElement("Cheeseburger In Paradise");
 
-        userInputField = new JComboBox<>(comboBoxModel);
-        userInputField.setEditable(true);
-        searchButton = new JButton("Search");
+
+        DefaultComboBoxModel<String> comboBoxModel2 = new DefaultComboBoxModel<>();
+        comboBoxModel2.addElement("Suite Six");
+        comboBoxModel2.addElement("Helena Avenue Bakery");
+        comboBoxModel2.addElement("All About Hair");
+        comboBoxModel2.addElement("Plush");
+        comboBoxModel2.addElement("Sake House");
+
+        userInputField1 = new JComboBox<>(comboBoxModel1);
+        userInputField1.setEditable(true);
+
+        userInputField2 = new JComboBox<>(comboBoxModel2);
+        userInputField2.setEditable(true);
+
+        searchButton = new JButton("Graph");
         searchButton.setBackground(Color.BLUE);
         cateButton = new JButton("Cluster");
         resultArea = new JTextArea();
         resultArea.setEditable(false);
 
+
         // Input Panel
         JPanel inputPanel = new JPanel(new BorderLayout());
         JPanel searchPanel = new JPanel(new BorderLayout());
-        searchPanel.add(new JLabel("Enter a business name: "), BorderLayout.WEST);
-        searchPanel.add(userInputField, BorderLayout.CENTER);
+        searchPanel.add(new JLabel("Enter 1st business: "), BorderLayout.WEST);
+        searchPanel.add(userInputField1, BorderLayout.CENTER);
+
+        JPanel secondBusinessPanel = new JPanel(new BorderLayout());
+        secondBusinessPanel.add(new JLabel("Enter 2nd business: "), BorderLayout.WEST);
+        secondBusinessPanel.add(userInputField2, BorderLayout.CENTER);
+
+        inputPanel.add(searchPanel, BorderLayout.NORTH);
+        inputPanel.add(secondBusinessPanel, BorderLayout.CENTER);
         searchPanel.add(searchButton, BorderLayout.EAST);
-        inputPanel.add(searchPanel, BorderLayout.CENTER);
         inputPanel.add(cateButton, BorderLayout.EAST);
+
 
         // Frame
         add(inputPanel, BorderLayout.NORTH);
         add(new JScrollPane(resultArea), BorderLayout.CENTER);
 
         // Action Listeners
-        searchButton.addActionListener(e -> search());
+        searchButton.addActionListener(e -> {
+            try {
+                showPath();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         cateButton.addActionListener(e -> {
             try {
                 cluster();
@@ -82,6 +107,10 @@ public class Main extends JFrame {
         setSize(600, 400); // Set initial size
         setLocationRelativeTo(null); // Center the frame on the screen
 
+    }
+
+    private void showPath() throws IOException, ClassNotFoundException{
+        resultArea.setText("Result Area for show path");
     }
 
     private void cluster() throws IOException, ClassNotFoundException {
@@ -113,7 +142,7 @@ public class Main extends JFrame {
         CustomMap <String, ArrayList<WeightedData>> clusterList = (CustomMap<String, ArrayList<WeightedData>>) obj;
 //        System.out.println(clusterList.getAllValues());
 //        ArrayList values = clusterList.getAllValues();
-        String userInput = Objects.requireNonNull(userInputField.getSelectedItem()).toString();
+        String userInput = Objects.requireNonNull(userInputField1.getSelectedItem()).toString();
 
         String userInputSername = "";
         for (String i: businessHashMap.getAllKeys()) {
@@ -218,7 +247,7 @@ public class Main extends JFrame {
 
 
         // Getting user input and cleaning the string
-        String userInput = userInputField.getSelectedItem().toString() ;
+        String userInput = userInputField1.getSelectedItem().toString() ;
         String userInputStoreReview = searchForStore(reviewList, userInput);
 
         reviewList = Arrays.stream(reviewList)
@@ -259,6 +288,7 @@ public class Main extends JFrame {
         }
 
         // Sorting the reviews by their total weight in descending orders
+        //git branch
         Arrays.sort(reviewList, new Comparator<Review>() {
             @Override
             public int compare(Review r1, Review r2) {
