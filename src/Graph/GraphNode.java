@@ -1,37 +1,40 @@
 package Graph;
 
-import java.io.Serializable;
+import bTree.BTree;
+import classes.Business;
+
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class GraphNode implements Serializable {
 
-    private String name;
+    private Business business;
 
     private final int id;
 
     private double distanceFromSource;
 
-    public GraphNode(String name) {
-        this.name = name;
-        this.id = name.hashCode();
+    public GraphNode(Business business) {
+        this.business = business;
+        this.id = business.hashCode();
     }
 
     // Cloning constructor
     public GraphNode(GraphNode gn) {
-        this.name = gn.getName();
+        this.business = gn.getBusiness();
         this.id = gn.hashCode();
         this.distanceFromSource = 0;
     }
-
-
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass() ) return false;
         GraphNode graphNode =  (GraphNode) obj;
-        return this.name.equalsIgnoreCase(graphNode.name);
+        return this.business.getBusiness_id().equalsIgnoreCase(graphNode.business.getBusiness_id());
     }
 
     @Override
@@ -39,13 +42,16 @@ public class GraphNode implements Serializable {
         return this.id;
     }
 
-
-    public String getName() {
-        return name;
+    public Business getBusiness() {
+        return business;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBusiness(Business business) {
+        this.business = business;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public double getDistanceFromSource() {
@@ -59,35 +65,52 @@ public class GraphNode implements Serializable {
     @Override
     public String toString() {
         return "GraphNode{" +
-                "name='" + name + '\'' +
+                "business=" + business +
                 ", id=" + id +
                 ", distanceFromSource=" + distanceFromSource +
                 '}';
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         Graph g1 = new Graph();
+        File path = new File("src/file_with_neighbours");
+        File[] files = path.listFiles();
 
-        g1.addEdge(new GraphNode("test1"), new GraphNode("test2"), 10);
-        g1.addEdge(new GraphNode("test1"), new GraphNode("test3"), 11);
-        g1.addEdge(new GraphNode("test3"), new GraphNode("test1"), 1110);
-
-        g1.addEdge(new GraphNode("test1"), new GraphNode("test4"), 12);
-        g1.addEdge(new GraphNode("test2"), new GraphNode("test3"), 13);
-        g1.addEdge(new GraphNode("test2"), new GraphNode("test5"), 14);
-        g1.addEdge(new GraphNode("test10"), new GraphNode("test11"), 14);
-        g1.addEdge(new GraphNode("test12"), new GraphNode("test15"), 4);
-        g1.addEdge(new GraphNode("test10"), new GraphNode("test11"), 14);
-
-
-
-        g1.addEdge(new GraphNode("test20"), new GraphNode("test21"), 14);
-        g1.addEdge(new GraphNode("test20"), new GraphNode("test21"), 20);
-
-
-
+        // Deserializing and importing in BTree
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
+            if (files[i].isFile()) {
+                FileInputStream fileIn = new FileInputStream(files[i]);
+                ObjectInputStream in =  new ObjectInputStream(fileIn);
+                Business b1  = (Business) in.readObject();
+                System.out.println("------");
+                System.out.println(b1.getName());
+                System.out.println("------");
+                for (Business j: b1.getClosestNeighbors()) {
+                    System.out.println(haversine(b1, j));
+                    System.out.println(j.getName());
+                }
+                fileIn.close();
+                in.close();
+            }
+        }
         g1.getDisjointSets();
+    }
 
+    /**
+     * - Haversine formula default
+     * @param b1 - business 1
+     * @param b2 - business 2
+     * @return the haversine distance
+     */
+    public static double haversine(Business b1, Business b2 ) {
+        double eRadius = 6371;
+        double dLat = Math.toRadians(b2.getLatitude()-b1.getLatitude());
+        double dLon = Math.toRadians(b2.getLongitude()-b1.getLongitude());
+        double lat1 = Math.toRadians(b1.getLatitude());
+        double lat2 = Math.toRadians(b2.getLatitude());
 
+        double a = Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math.cos(lat2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        return eRadius * c;
     }
 }

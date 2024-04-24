@@ -47,7 +47,7 @@ public class Graph implements Serializable {
             System.out.println(component);
         }
 
-        }
+    }
 
 
     public Map<GraphNode, List<GraphNode>> getMap() {
