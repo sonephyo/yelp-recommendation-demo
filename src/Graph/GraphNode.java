@@ -73,6 +73,8 @@ public class GraphNode implements Serializable {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         Graph g1 = new Graph();
+
+
         File path = new File("src/file_with_neighbours");
         File[] files = path.listFiles();
 
@@ -82,18 +84,23 @@ public class GraphNode implements Serializable {
                 FileInputStream fileIn = new FileInputStream(files[i]);
                 ObjectInputStream in =  new ObjectInputStream(fileIn);
                 Business b1  = (Business) in.readObject();
-                System.out.println("------");
-                System.out.println(b1.getName());
-                System.out.println("------");
-                for (Business j: b1.getClosestNeighbors()) {
-                    System.out.println(haversine(b1, j));
-                    System.out.println(j.getName());
+                System.out.println("----------");
+                for (Business businessNeighbor: b1.getClosestNeighbors()) {
+                    g1.addEdge(new GraphNode(b1), new GraphNode(businessNeighbor), haversine(b1, businessNeighbor));
+                    System.out.println(businessNeighbor.getName());
+                    System.out.println(haversine(b1, businessNeighbor));
                 }
                 fileIn.close();
                 in.close();
             }
         }
-        g1.getDisjointSets();
+
+        g1.displayVertexDegrees();
+//        System.out.println();
+//        System.out.println();
+//        System.out.println();
+//        System.out.println();
+//        g1.getDisjointSets();
     }
 
     /**

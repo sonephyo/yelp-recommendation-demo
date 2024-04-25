@@ -24,6 +24,13 @@ public class Graph implements Serializable {
         map.get(source).add(gn);
     }
 
+    public void displayVertexDegrees() {
+        System.out.println("Vertex Degrees:");
+        for (Map.Entry<GraphNode, List<GraphNode>> entry : map.entrySet()) {
+            System.out.println(map.get(entry.getKey()).size() + " -> " + entry.getValue().size());
+        }
+    }
+
     public void getDisjointSets() {
         UnionFind uf = new UnionFind(new HashSet<>(map.keySet()));
 
@@ -44,7 +51,7 @@ public class Graph implements Serializable {
 
         // Print or return the components
         for (Set<GraphNode> component : components.values()) {
-            System.out.println(component);
+            System.out.println(component.size());
         }
 
     }
