@@ -35,13 +35,13 @@ public class GraphImplement {
 
 //        g1.convertGraphToSerFile();
 
-//        g1.displayVertexDegrees();
+        g1.displayVertexDegrees();
 //        System.out.println();
 //        g1.getDisjointSets();
 
 
-        GraphNode gn1 = g1.getGraphNodeFromBusinessId("n2Va0mKydUWM-Y4fv1pOtA");
-        GraphNode gn2 = g1.getGraphNodeFromBusinessId("Pns2l4eNsfO8kk83dixA6A");
+        GraphNode gn1 = g1.getGraphNodeFromBusinessId("tkootvLq3Be6vDg2oMif6g");
+        GraphNode gn2 = g1.getGraphNodeFromBusinessId("7szNWDcqtZannLWz3HKYmQ");
 
 
         List<GraphNode> list = g1.getShortestPath(gn1, gn2);

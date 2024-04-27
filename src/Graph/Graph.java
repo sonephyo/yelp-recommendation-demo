@@ -90,58 +90,96 @@ public class Graph implements Serializable {
         fileOut.close();
     }
 
+//    public List<GraphNode> getShortestPath(GraphNode start, GraphNode finish) {
+//        final Map<GraphNode, Double> distances = new HashMap<>();
+//        final Map<GraphNode, GraphNode> previous = new HashMap<>();
+//        PriorityQueue<GraphNode> nodes = new PriorityQueue<GraphNode>();
+//
+//        for (GraphNode vertex: map.keySet()) {
+//            if (vertex.equals(start)) {
+//                distances.put(vertex,0.0);
+//                nodes.add(new GraphNode(vertex));
+//            } else {
+//                distances.put(vertex, Double.MAX_VALUE);
+//                nodes.add(new GraphNode(vertex));
+//            }
+//            previous.put(vertex, null);
+//        }
+//
+//        while (!nodes.isEmpty()) {
+//            GraphNode smallest = nodes.poll();
+//            if (smallest.getId() == finish.getId()) {
+//                final List<GraphNode> path = new ArrayList<>();
+//                while (previous.get(smallest) != null) {
+//                    path.add(smallest);
+//                    smallest = previous.get(smallest);
+//                }
+//                return path;
+//            }
+//
+//            if (distances.get(smallest) == Double.MAX_VALUE) {
+//                break;
+//            }
+//
+//            for (GraphNode neighbor: map.get(smallest)) {
+//                double alt = distances.get(smallest) + neighbor.getDistanceFromSource();
+//                if (alt < distances.get(neighbor)) {
+//                    distances.put(neighbor, alt);
+//                    previous.put(neighbor, smallest);
+//
+//                    for (GraphNode n: nodes) {
+//                        if (n.equals(neighbor)) {
+//                            nodes.remove(n);
+//                            n.setDistanceFromSource(alt);
+//                            nodes.add(n);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return  new ArrayList<>(distances.keySet());
+//    }
+//
+
     public List<GraphNode> getShortestPath(GraphNode start, GraphNode finish) {
         final Map<GraphNode, Double> distances = new HashMap<>();
         final Map<GraphNode, GraphNode> previous = new HashMap<>();
-        PriorityQueue<GraphNode> nodes = new PriorityQueue<GraphNode>();
+        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
 
-        for (GraphNode vertex: map.keySet()) {
-            if (vertex.equals(start)) {
-                distances.put(vertex,0.0);
-                nodes.add(new GraphNode(vertex));
-            } else {
-                distances.put(vertex, Double.MAX_VALUE);
-                nodes.add(new GraphNode(vertex));
-            }
+        for (GraphNode vertex : map.keySet()) {
+            distances.put(vertex, vertex.equals(start) ? 0.0 : Double.MAX_VALUE);
             previous.put(vertex, null);
+            nodes.add(vertex);
         }
 
         while (!nodes.isEmpty()) {
             GraphNode smallest = nodes.poll();
-            if (smallest.getId() == finish.getId()) {
-                final List<GraphNode> path = new ArrayList<>();
+            if (smallest.equals(finish)) {
+                List<GraphNode> path = new ArrayList<>();
                 while (previous.get(smallest) != null) {
                     path.add(smallest);
                     smallest = previous.get(smallest);
                 }
+                Collections.reverse(path);
                 return path;
             }
 
             if (distances.get(smallest) == Double.MAX_VALUE) {
-                break;
+                break; // No path found
             }
 
-            for (GraphNode neighbor: map.get(smallest)) {
+            for (GraphNode neighbor : map.get(smallest)) {
                 double alt = distances.get(smallest) + neighbor.getDistanceFromSource();
                 if (alt < distances.get(neighbor)) {
                     distances.put(neighbor, alt);
                     previous.put(neighbor, smallest);
-
-                    for (GraphNode n: nodes) {
-                        if (n.equals(neighbor)) {
-                            nodes.remove(n);
-                            n.setDistanceFromSource(alt);
-                            nodes.add(n);
-                        }
-                    }
+                    nodes.remove(neighbor);
+                    nodes.add(neighbor);
                 }
             }
         }
-        return  new ArrayList<>(distances.keySet());
+        return new ArrayList<>(distances.keySet());
     }
-
-
-
 
     public Map<GraphNode, List<GraphNode>> getMap() {
         return map;
