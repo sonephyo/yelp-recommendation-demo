@@ -1,15 +1,11 @@
 package Graph;
 
-import bTree.BTree;
+
 import classes.Business;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
-public class GraphNode implements Serializable {
+public class GraphNode implements Serializable, Comparable<GraphNode> {
 
     private Business business;
 
@@ -39,7 +35,11 @@ public class GraphNode implements Serializable {
 
     @Override
     public int hashCode() {
-        return this.id;
+        int result = 17;
+        result = 37*result + this.business.getLongitude().hashCode();
+        result = 37*result + this.business.getLatitude().hashCode();
+        result = 37*result + this.business.getBusiness_id().hashCode();
+        return result;
     }
 
     public Business getBusiness() {
@@ -62,6 +62,7 @@ public class GraphNode implements Serializable {
         this.distanceFromSource = distanceFromSource;
     }
 
+
     @Override
     public String toString() {
         return "GraphNode{" +
@@ -69,38 +70,6 @@ public class GraphNode implements Serializable {
                 ", id=" + id +
                 ", distanceFromSource=" + distanceFromSource +
                 '}';
-    }
-
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-        Graph g1 = new Graph();
-
-
-        File path = new File("src/file_with_neighbours");
-        File[] files = path.listFiles();
-
-        // Deserializing and importing in BTree
-        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
-            if (files[i].isFile()) {
-                FileInputStream fileIn = new FileInputStream(files[i]);
-                ObjectInputStream in =  new ObjectInputStream(fileIn);
-                Business b1  = (Business) in.readObject();
-                System.out.println("----------");
-                for (Business businessNeighbor: b1.getClosestNeighbors()) {
-                    g1.addEdge(new GraphNode(b1), new GraphNode(businessNeighbor), haversine(b1, businessNeighbor));
-                    System.out.println(businessNeighbor.getName());
-                    System.out.println(haversine(b1, businessNeighbor));
-                }
-                fileIn.close();
-                in.close();
-            }
-        }
-
-        g1.displayVertexDegrees();
-//        System.out.println();
-//        System.out.println();
-//        System.out.println();
-//        System.out.println();
-//        g1.getDisjointSets();
     }
 
     /**
@@ -119,5 +88,17 @@ public class GraphNode implements Serializable {
         double a = Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math.cos(lat2);
         double c = 2 * Math.asin(Math.sqrt(a));
         return eRadius * c;
+    }
+
+    @Override
+    public int compareTo(GraphNode o) {
+        double   result = this.getDistanceFromSource() - o.getDistanceFromSource();
+        if (result > 0) {
+            return 1;
+        } else if (result < 0) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 }

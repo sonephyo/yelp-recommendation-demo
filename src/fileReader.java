@@ -27,7 +27,7 @@ public class fileReader implements Serializable {
         // Making the hashtable for the businesses
         Hashtable<String, Business> businessHashtable = new Hashtable<>();
 
-        while ((line = br.readLine()) != null && busCount < 1000) {
+        while ((line = br.readLine()) != null && busCount < 20) {
             if (count % 100 == 0) {
                 Business b1 = gson.fromJson(line, Business.class);
                 businessHashtable.put(b1.getBusiness_id(), b1);
