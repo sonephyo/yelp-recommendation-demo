@@ -6,10 +6,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.List;
-import java.util.Objects;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class GraphImplement {
+
+
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         Graph g1 = new Graph();
@@ -33,6 +37,7 @@ public class GraphImplement {
             }
         }
 
+
 //        g1.convertGraphToSerFile();
 
         g1.displayVertexDegrees();
@@ -41,7 +46,7 @@ public class GraphImplement {
 
 
         GraphNode gn1 = g1.getGraphNodeFromBusinessId("tkootvLq3Be6vDg2oMif6g");
-        GraphNode gn2 = g1.getGraphNodeFromBusinessId("7szNWDcqtZannLWz3HKYmQ");
+        GraphNode gn2 = g1.getGraphNodeFromBusinessId("t4G4ugGCp1YbkhLOJhS9Ng");
 
 
         List<GraphNode> list = g1.getShortestPath(gn1, gn2);
@@ -49,6 +54,9 @@ public class GraphImplement {
             System.out.println(i.getBusiness().getName());
         }
         System.out.println(list.size());
+
+
     }
+
 
 }
