@@ -36,21 +36,20 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-
         DefaultComboBoxModel<String> comboBoxModel1 = new DefaultComboBoxModel<>();
-        comboBoxModel1.addElement("Sukho Thai");
-        comboBoxModel1.addElement("Village Tap Room");
-        comboBoxModel1.addElement("The Silverspoon");
-        comboBoxModel1.addElement("Denny's");
-        comboBoxModel1.addElement("Cheeseburger In Paradise");
+        comboBoxModel1.addElement("Ahi Sushi Bar");
+        comboBoxModel1.addElement("Dadz Bar & Grill");
+        comboBoxModel1.addElement("Boise Thai Noodle House");
+        comboBoxModel1.addElement("Pepper Palace");
+        comboBoxModel1.addElement("Binford Cafe");
 
 
         DefaultComboBoxModel<String> comboBoxModel2 = new DefaultComboBoxModel<>();
-        comboBoxModel2.addElement("Suite Six");
-        comboBoxModel2.addElement("Helena Avenue Bakery");
-        comboBoxModel2.addElement("All About Hair");
-        comboBoxModel2.addElement("Plush");
-        comboBoxModel2.addElement("Sake House");
+        comboBoxModel2.addElement("Shoe Carnival");
+        comboBoxModel2.addElement("Hook & Reel Cajun Seafood & Bar");
+        comboBoxModel2.addElement("Canyon Electric");
+        comboBoxModel2.addElement("First Tennessee Bank");
+        comboBoxModel2.addElement("Outback Steakhouse");
 
         userInputField1 = new JComboBox<>(comboBoxModel1);
         userInputField1.setEditable(true);

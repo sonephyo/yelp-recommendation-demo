@@ -115,51 +115,149 @@ public class Graph implements Serializable {
         fileOut.close();
     }
 
-    public List<GraphNode> getShortestPath(GraphNode start, GraphNode finish) throws IOException, ClassNotFoundException {
-        final Map<GraphNode, Double> distances = new HashMap<>();
+//    public List<GraphNode> getShortestPath(GraphNode start, GraphNode finish) throws IOException, ClassNotFoundException {
+//        final Map<GraphNode, Double> distances = new HashMap<>();
+//        final Map<GraphNode, GraphNode> previous = new HashMap<>();
+//        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
+//
+//        for (GraphNode vertex : map.keySet()) {
+//            distances.put(vertex, vertex.equals(start) ? 0.0 : Double.MAX_VALUE);
+//            previous.put(vertex, null);
+//            nodes.add(vertex);
+//        }
+//
+//        while (!nodes.isEmpty()) {
+//            GraphNode smallest = nodes.poll();
+//            if (smallest.equals(finish)) {
+//                List<GraphNode> path = new ArrayList<>();
+//                while (previous.get(smallest) != null) {
+//                    path.add(smallest);
+//                    smallest = previous.get(smallest);
+//                }
+//                Collections.reverse(path);
+//                return path;
+//            }
+//
+//            if (distances.get(smallest) == Double.MAX_VALUE) {
+//                break; // No path found
+//            }
+//
+//            for (GraphNode neighbor : map.get(smallest)) {
+//                System.out.println("lala");
+//                System.out.println(neighbor.getBusiness().getName());
+//                System.out.println("--> " + smallest.getBusiness().getName());
+//                System.out.println("lala");
+//                double tfidfScore = calculateTFIDF(smallest, neighbor);
+//                double alt = distances.get(smallest) + tfidfScore;
+//                if (alt < distances.get(neighbor)) {
+//                    distances.put(neighbor, alt);
+//                    previous.put(neighbor, smallest);
+//                    nodes.remove(neighbor);
+//                    nodes.add(neighbor);
+//                }
+//            }
+//            System.out.println("-----");
+//        }
+//        return new ArrayList<>(distances.keySet());
+//    }
+
+    //changes with tf-idf as distance
+    public List<GraphNode> getShortestPathWithTFIDF(GraphNode start, GraphNode finish) throws IOException, ClassNotFoundException {
+        final Map<GraphNode, Double> tfidfScores = new HashMap<>();
         final Map<GraphNode, GraphNode> previous = new HashMap<>();
-        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
+        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(tfidfScores::get));
 
         for (GraphNode vertex : map.keySet()) {
-            distances.put(vertex, vertex.equals(start) ? 0.0 : Double.MAX_VALUE);
+            tfidfScores.put(vertex, vertex.equals(start) ? 0.0 : Double.POSITIVE_INFINITY);
             previous.put(vertex, null);
             nodes.add(vertex);
         }
 
         while (!nodes.isEmpty()) {
-            GraphNode smallest = nodes.poll();
-            if (smallest.equals(finish)) {
+            GraphNode highestTfidfNode = nodes.poll();
+            if (highestTfidfNode.equals(finish)) {
                 List<GraphNode> path = new ArrayList<>();
-                while (previous.get(smallest) != null) {
-                    path.add(smallest);
-                    smallest = previous.get(smallest);
+                while (previous.get(highestTfidfNode) != null) {
+                    path.add(highestTfidfNode);
+                    highestTfidfNode = previous.get(highestTfidfNode);
                 }
+                path.add(start);
                 Collections.reverse(path);
                 return path;
             }
 
-            if (distances.get(smallest) == Double.MAX_VALUE) {
+            if (Double.isInfinite(tfidfScores.get(highestTfidfNode))) {
                 break; // No path found
             }
 
-            for (GraphNode neighbor : map.get(smallest)) {
+            for (GraphNode neighbor : map.get(highestTfidfNode)) {
                 System.out.println("lala");
                 System.out.println(neighbor.getBusiness().getName());
-                System.out.println("--> " + smallest.getBusiness().getName());
+                System.out.println("--> " + highestTfidfNode.getBusiness().getName());
                 System.out.println("lala");
-                double tfidfScore = calculateTFIDF(smallest, neighbor);
-                double alt = distances.get(smallest) + tfidfScore;
-                if (alt < distances.get(neighbor)) {
-                    distances.put(neighbor, alt);
-                    previous.put(neighbor, smallest);
+                double tfidfReciprocal = 1/calculateTFIDF(highestTfidfNode, neighbor);
+                //double tfidfScore = calculateTFIDF(highestTfidfNode, neighbor);
+                double alt = tfidfScores.get(highestTfidfNode) + tfidfReciprocal;
+                if (alt < tfidfScores.get(neighbor)) {
+                    tfidfScores.put(neighbor, alt);
+                    previous.put(neighbor, highestTfidfNode);
                     nodes.remove(neighbor);
                     nodes.add(neighbor);
                 }
             }
             System.out.println("-----");
         }
-        return new ArrayList<>(distances.keySet());
+        return null;
     }
+
+
+
+//    public List<GraphNode> getShortestPathWithTFIDF(GraphNode start, GraphNode finish) throws IOException, ClassNotFoundException {
+//        final Map<GraphNode, Double> tfidfScores = new HashMap<>();
+//        final Map<GraphNode, GraphNode> previous = new HashMap<>();
+//        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(tfidfScores::get));
+//
+//        for (GraphNode vertex : map.keySet()) {
+//            tfidfScores.put(vertex, vertex.equals(start) ? 0.0 : Double.MAX_VALUE);
+//            previous.put(vertex, null);
+//            nodes.add(vertex);
+//        }
+//
+//        while (!nodes.isEmpty()) {
+//            GraphNode highestTfidfNode = nodes.poll();
+//            if (highestTfidfNode.equals(finish)) {
+//                List<GraphNode> path = new ArrayList<>();
+//                while (previous.get(highestTfidfNode) != null) {
+//                    path.add(highestTfidfNode);
+//                    highestTfidfNode = previous.get(highestTfidfNode);
+//                }
+//                path.add(start);
+//                Collections.reverse(path);
+//                return path; // Return the constructed path
+//            }
+//
+//            if (Double.isInfinite(tfidfScores.get(highestTfidfNode))) {
+//                break; // No reachable path found
+//            }
+//
+//            for (GraphNode neighbor : map.get(highestTfidfNode)) {
+//                System.out.println("lala");
+//                System.out.println(neighbor.getBusiness().getName());
+//                System.out.println("--> " + highestTfidfNode.getBusiness().getName());
+//                System.out.println("lala");
+//                double tfidfScore = calculateTFIDF(highestTfidfNode, neighbor);
+//                double alt = tfidfScores.get(highestTfidfNode) + tfidfScore;
+//                if (alt < tfidfScores.get(neighbor)) {
+//                    tfidfScores.put(neighbor, alt);
+//                    previous.put(neighbor, highestTfidfNode);
+//                    nodes.remove(neighbor);
+//                    nodes.add(neighbor);
+//                }
+//            }
+//            System.out.println("-----");
+//        }
+//        return null; // No path found, return null instead of empty list
+//    }
 
     public Map<GraphNode, List<GraphNode>> getMap() {
         return map;
@@ -258,7 +356,6 @@ public class Graph implements Serializable {
         }
         //return weightValues map containing filenames and associated weighted values
         return weightValues.get(gn2.getBusiness().getBusiness_id()+ ".ser");
-
     }
 
 

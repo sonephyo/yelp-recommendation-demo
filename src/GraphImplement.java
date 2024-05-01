@@ -44,16 +44,37 @@ public class GraphImplement {
 //        System.out.println();
 //        g1.getDisjointSets();
 
+        //"tkootvLq3Be6vDg2oMif6g" - American Leak , "t4G4ugGCp1YbkhLOJhS9Ng" = creamy, 6o7lbtHHMBeE5xCOl3SWlA = classy sweet
+        //JMczMvfpoCnhyjL523dONg =  Boise Thai Noodle House, -oRyTR9br2I3xMbTvGZDXw - Babby Farms Puppy Boutique,
+        //5kr0Xf61tEs5X50PlVLk_g - Summit Family Health
 
-        GraphNode gn1 = g1.getGraphNodeFromBusinessId("tkootvLq3Be6vDg2oMif6g");
-        GraphNode gn2 = g1.getGraphNodeFromBusinessId("t4G4ugGCp1YbkhLOJhS9Ng");
+
+        //rxs7GHCeRh9M5iqJ3VKgNA - Pepper Palace -> Ld7K9CU1bgovY0kM_VpUXw - Eat Well Market/ First Tennessee Bank  - pkc3G9rUGLlNSRrxskGwtA
+        //Falafel N Cafe AglkyqtcY_NHlaZHYGJRRQ -> Burger King       - TkIlHiDNcoMt2SL5sA9cCw
+        //eeh3p2qf0unkx6AGmBV4EA - Hertz Car Sales Rivergate -> 509S3lxFEPa_qBeokJg47A - Quiznos
+        //Classic Car Spa ntg2mWpN-kTsUczgI5ae3g -> Goodwill Thrift Store and Donation Center- eNM4YpOYxGqiQFn_pxFQRA
+
+        //Binford Cafe TMEnErP6Y6mMgfmX2wFcLw -> Outback Steakhouse - 06w-nCn3voKD69dxGxYn-A
+        //JMczMvfpoCnhyjL523dONg =  Boise Thai Noodle House -> Canyon Electric - tJa7JuaRV7kWuCllHchxDw
+        //Ahi Sushi Bar wMQMMxaGq0HPG0mApezXMw -> Shoe Carnival - wknUAmMjzjAyNFmwUWd4fQ
+        //Dadz Bar & Grill 6TwYcKp_47VueK7EwNFDxQ -> Hook & Reel Cajun Seafood & Bar - lGwmPQcKEGPIEWKGSoM1kw
+        //*****Balayage Blonde Salon zQJYqfF9S7cXTNkVa9QdPw -> Academic Alliance in Dermatology - YAeRe3GpFPTdDZtSNsr8bQ
+        //Showing no path if neighbor and node
+        //*****Classic Car Spa   - ntg2mWpN-kTsUczgI5ae3g -> Goodwill Thrift Store and Donation Center  - eNM4YpOYxGqiQFn_pxFQRA
+        //rxs7GHCeRh9M5iqJ3VKgNA - Pepper Palace -> Ld7K9CU1bgovY0kM_VpUXw - Eat Well Market/ First Tennessee Bank  - pkc3G9rUGLlNSRrxskGwtA
+        GraphNode gn1 = g1.getGraphNodeFromBusinessId("rxs7GHCeRh9M5iqJ3VKgNA");
+        GraphNode gn2 = g1.getGraphNodeFromBusinessId("pkc3G9rUGLlNSRrxskGwtA");
 
 
-        List<GraphNode> list = g1.getShortestPath(gn1, gn2);
-        for (GraphNode i : list) {
-            System.out.println(i.getBusiness().getName());
+        List<GraphNode> list = g1.getShortestPathWithTFIDF(gn1, gn2);
+        if (list != null) {
+            for (GraphNode i : list) {
+                System.out.println(i.getBusiness().getName());
+            }
+            System.out.println(list.size());
+        } else {
+            System.out.println("No path found between the specified businesses.");
         }
-        System.out.println(list.size());
 
 
     }
