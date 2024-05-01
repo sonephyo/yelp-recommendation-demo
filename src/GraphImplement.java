@@ -30,7 +30,9 @@ public class GraphImplement {
                 Business b1  = (Business) in.readObject();
 
                 for (Business businessNeighbor: b1.getClosestNeighbors()) {
-                        g1.addEdge(new GraphNode(b1), new GraphNode(businessNeighbor), GraphNode.haversine(b1, businessNeighbor));
+                    GraphNode gn1 = new GraphNode(b1);
+                    GraphNode gn2 = new GraphNode(businessNeighbor);
+                    g1.addEdge(new GraphNode(b1), new GraphNode(businessNeighbor), Graph.calculateTFIDF(gn1, gn2));
                 }
                 fileIn.close();
                 in.close();
@@ -43,18 +45,31 @@ public class GraphImplement {
         g1.displayVertexDegrees();
 //        System.out.println();
 //        g1.getDisjointSets();
+//
+//        System.out.println();
+//
+//
+//        GraphNode gn1 = g1.getGraphNodeFromBusinessId("qKcEyi0idj7cTQYzbhuKkg");
+//        GraphNode gn2 = g1.getGraphNodeFromBusinessId("8t6mbhBNAT027aeDQ4mR3A");
+//
+//
+//        List<GraphNode> list = g1.getShortestPath(gn1, gn2);
+//        for (GraphNode i : list) {
+//            System.out.println(i.getBusiness().getName());
+//        }
+//        System.out.println(list.size());
 
 
-        GraphNode gn1 = g1.getGraphNodeFromBusinessId("tkootvLq3Be6vDg2oMif6g");
-        GraphNode gn2 = g1.getGraphNodeFromBusinessId("t4G4ugGCp1YbkhLOJhS9Ng");
+//        for (Set<GraphNode> gnSet: g1.getDisjointSetResults().values()) {
+//            GraphNode gn3 = g1.getGraphNodeFromBusinessId("qKcEyi0idj7cTQYzbhuKkg");
+//            GraphNode gn4 = g1.getGraphNodeFromBusinessId("8t6mbhBNAT027aeDQ4mR3A");
+//            System.out.println(gnSet.contains(gn3) && gnSet.contains(gn4));
+//        }
 
-
-        List<GraphNode> list = g1.getShortestPath(gn1, gn2);
-        for (GraphNode i : list) {
-            System.out.println(i.getBusiness().getName());
-        }
-        System.out.println(list.size());
-
+//        Map<GraphNode, Double> output = g1.getShortestPath(gn1,gn2);
+//        for (GraphNode gn: output.keySet()) {
+//            System.out.println(gn.getBusiness().getName() + ", " + gn.getBusiness().getBusiness_id() + ": " + output.get(gn));
+//        }
 
     }
 
