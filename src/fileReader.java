@@ -27,7 +27,7 @@ public class fileReader implements Serializable {
         // Making the hashtable for the businesses
         Hashtable<String, Business> businessHashtable = new Hashtable<>();
 
-        while ((line = br.readLine()) != null && busCount < 15) {
+        while ((line = br.readLine()) != null && busCount < 1000) {
             if (count % 100 == 0) {
                 Business b1 = gson.fromJson(line, Business.class);
                 businessHashtable.put(b1.getBusiness_id(), b1);
@@ -69,19 +69,6 @@ public class fileReader implements Serializable {
             out.close();
             fileOut.close();
         }
-
-//        for (Business business : businessHashtable.values()){
-//            System.out.println("Business: " + business.getName() + "(" + business.getLatitude() + ", " + business.getLongitude() + ")" );
-//            List<Business> neighbors = business.getClosestNeighbors();
-//            if(neighbors!= null) {
-//                for (Business neighbor : neighbors) {
-//                    double distance = Haversine(business, neighbor);
-//                    System.out.println(" Neighbor id: " + neighbor.getBusiness_id() + "(" + neighbor.getLatitude() + ", " + neighbor.getLongitude() + ")" + " Name: " + neighbor.getName() +
-//                            ", Distance: " + distance + " km");
-//                }
-//            }
-//            System.out.println();
-//        }
     }
 
     /**

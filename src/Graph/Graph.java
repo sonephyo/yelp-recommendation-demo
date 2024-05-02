@@ -14,10 +14,10 @@ public class Graph implements Serializable {
     private final Map<GraphNode, List<GraphNode>> map = new HashMap<>();
 
 
-    private static HashMap<String, Business> businessHashMap = new HashMap<>();
+    private HashMap<String, Business> businessHashMap = new HashMap<>();
 
     //Map business IDs to review texts
-    private static HashMap<String, String> businessReviewMap = new HashMap<>();
+    private HashMap<String, String> businessReviewMap = new HashMap<>();
 
     private Map<GraphNode, Set<GraphNode>> disjointSetResults = new HashMap<>();
 
@@ -74,8 +74,10 @@ public class Graph implements Serializable {
             System.out.println("-------");
 //            System.out.println(map.get(entry.getKey()).size() + " -> " + entry.getValue().size());
             System.out.println(entry.getBusiness().getName() + " " + entry.getBusiness().getBusiness_id() + " ,value: " + entry.getDistanceFromSource());
+
             for (GraphNode node: map.get(entry)) {
                 System.out.println(node.getBusiness().getName() + "       - " + node.getBusiness().getBusiness_id() + " ,value: " + node.getDistanceFromSource());
+//                System.out.println("dectect " + node.getBusiness().getRv_text());
             }
             System.out.println("-------");
             count++;
@@ -122,52 +124,6 @@ public class Graph implements Serializable {
         out.close();
         fileOut.close();
     }
-
-//    public List<GraphNode> getShortestPath(GraphNode start, GraphNode finish) throws IOException, ClassNotFoundException {
-//        final Map<GraphNode, Double> distances = new HashMap<>();
-//        final Map<GraphNode, GraphNode> previous = new HashMap<>();
-//        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
-//
-//        for (GraphNode vertex : map.keySet()) {
-//            distances.put(vertex, vertex.equals(start) ? 0.0 : Double.MAX_VALUE);
-//            previous.put(vertex, null);
-//            nodes.add(vertex);
-//        }
-//
-//        while (!nodes.isEmpty()) {
-//            GraphNode smallest = nodes.poll();
-//            if (smallest.equals(finish)) {
-//                List<GraphNode> path = new ArrayList<>();
-//                while (previous.get(smallest) != null) {
-//                    path.add(smallest);
-//                    smallest = previous.get(smallest);
-//                }
-//                Collections.reverse(path);
-//                return path;
-//            }
-//
-//            if (distances.get(smallest) == Double.MAX_VALUE) {
-//                break; // No path found
-//            }
-//
-//            for (GraphNode neighbor : map.get(smallest)) {
-//                System.out.println("-----");
-//                System.out.println(smallest.getBusiness().getName() + "--> " + neighbor.getBusiness().getName());
-//                System.out.println("-----");
-//                double tfidfScore = calculateTFIDF(smallest, neighbor);
-//                double alt = distances.get(smallest) + tfidfScore;
-//                if (alt < distances.get(neighbor)) {
-//                    distances.put(neighbor, alt);
-//                    previous.put(neighbor, smallest);
-//                    nodes.remove(neighbor);
-//                    nodes.add(neighbor);
-//                }
-//            }
-//            System.out.println("-----");
-//        }
-//        return new ArrayList<>(distances.keySet());
-//    }
-
     public void createDisjointSets() {
         UnionFind uf = new UnionFind(new HashSet<>(map.keySet()));
 
@@ -219,12 +175,12 @@ public class Graph implements Serializable {
             chosenMap.put(gn, map.get(gn));
         }
 
-        final Map<GraphNode, Double> distances = new HashMap<>();
-        final Map<GraphNode, GraphNode> previous = new HashMap<>();
-        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
+        final Map<GraphNode, Double> distances = new HashMap<>(); // Total distance from the start node
+        final Map<GraphNode, GraphNode> previous = new HashMap<>(); // For backtracking from the end node to the start node
+        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(distances::get)); // Making a priority list for polling the smallest GraphNode
 
         for (GraphNode vertex : chosenMap.keySet()) {
-            distances.put(vertex, vertex.equals(start) ? 0.0 : Double.MIN_VALUE);
+            distances.put(vertex, vertex.equals(start) ? 0.0 : Double.MAX_VALUE);
             previous.put(vertex, null);
             nodes.add(vertex);
         }
@@ -232,16 +188,48 @@ public class Graph implements Serializable {
         while (!nodes.isEmpty()) {
             GraphNode current = nodes.poll();
 
+            // When the finish node has been detected
             if (current.equals(finish)) {
-                return getPath(current, previous);
+                for (GraphNode g: previous.keySet()) {
+//                    System.out.println(g.getBusiness().getBusiness_id());
+
+                    Business currentBusiness = g.getBusiness();
+                    GraphNode previousNode = previous.get(g); // Get the previous node from the map
+
+                    if (previousNode != null && previousNode.getBusiness() != null) {
+                        System.out.println(previousNode.getBusiness().getName() + "--> " + currentBusiness.getName() + "- " + distances.get(previousNode));
+                    } else {
+                        System.out.println(currentBusiness.getName() + "--> null");
+                    }
+                }
+
+                final List<GraphNode> path = new ArrayList<>();
+                while (previous.containsKey(current)) {
+                    path.add(current);
+                    current = previous.get(current);
+                }
+                Collections.reverse(path);
+                return path;
+            }
+
+            if (distances.get(current) == Double.MAX_VALUE) {
+                break;
             }
 
             double currentDistance = distances.get(current);
 
             for (GraphNode neighbor: chosenMap.get(current)) {
-                double alt = currentDistance + calculateTFIDF(current, neighbor);
 
-                if (alt > distances.get(neighbor)) {
+                System.out.println("lala");
+                System.out.println( current.getBusiness().getName() + "--> " + neighbor.getBusiness().getName() + ", value:  " +  neighbor.getDistanceFromSource());
+
+
+                double alt = currentDistance + (1/calculateTFIDF(current, neighbor));
+                System.out.println(alt);
+                System.out.println("lala");
+
+
+                if (alt < distances.get(neighbor)) {
                     distances.put(neighbor, alt);
                     previous.put(neighbor, current);
                     nodes.remove(neighbor);
@@ -249,6 +237,7 @@ public class Graph implements Serializable {
                 }
             }
         }
+
         return new ArrayList<GraphNode>();
     }
 
@@ -264,7 +253,7 @@ public class Graph implements Serializable {
         return map;
     }
 
-    public static Double calculateTFIDF(GraphNode gn1, GraphNode gn2) throws IOException, ClassNotFoundException {
+    public Double calculateTFIDF(GraphNode gn1, GraphNode gn2) throws IOException, ClassNotFoundException {
 
         //String medoidFilename
 
