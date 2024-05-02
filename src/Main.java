@@ -1,3 +1,4 @@
+import Graph.Graph;
 import bTree.BTree;
 import classes.Business;
 import classes.Review;
@@ -9,6 +10,7 @@ import weightedData.WeightedData;
 import javax.swing.border.LineBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import Graph.GraphNode;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -17,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class Main extends JFrame {
 
@@ -111,8 +114,57 @@ public class Main extends JFrame {
 
     private void showPath() throws IOException, ClassNotFoundException{
         resultArea.setText("");
+
+
         String userInput1 = userInputField1.getSelectedItem().toString();
         String userInput2= userInputField2.getSelectedItem().toString();
+
+
+        FileInputStream fileIn = new FileInputStream("src/graphOutput/graphOutput.ser");
+        ObjectInputStream in =  new ObjectInputStream(fileIn);
+        Graph g1 = (Graph) in.readObject();
+        in.close();
+        fileIn.close();
+
+        Hashtable<String, Business> businessHTName = new Hashtable<>();
+
+
+        for (GraphNode gn: g1.getMap().keySet()) {
+            businessHTName.put(gn.getBusiness().getName(), gn.getBusiness());
+        }
+
+
+        g1.displayVertexDegrees();
+        System.out.println();
+        g1.getDisjointSets();
+        System.out.println();
+
+        if (businessHTName.get(userInput1)== null || businessHTName.get(userInput1) == null) {
+            resultArea.setText("Store not found. Try another store");
+            return;
+        }
+
+
+        GraphNode gn1 = g1.getGraphNodeFromBusinessId(businessHTName.get(userInput1).getBusiness_id());
+        GraphNode gn2 = g1.getGraphNodeFromBusinessId(businessHTName.get(userInput2).getBusiness_id());
+
+
+        List<GraphNode> list = g1.getShortestPath(gn1, gn2);
+        System.out.println("------");
+        if (list != null) {
+            int count = 0;
+            for (GraphNode i : list) {
+                System.out.println(i.getBusiness().getName());
+                resultArea.append(i.getBusiness().getName());
+                if (count < list.size()-1) resultArea.append(" --> ");
+                count++;
+            }
+            System.out.println(list.size());
+        } else {
+            resultArea.append(userInput1 + " and " + userInput2 + " are not in the same set. (Note: They are far away according to geographical location)");
+        }
+
+
     }
 
     private void cluster() throws IOException, ClassNotFoundException {
