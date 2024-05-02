@@ -220,11 +220,13 @@ public class Graph implements Serializable {
 
             for (GraphNode neighbor: chosenMap.get(current)) {
 
+                double tfidf = (1/(calculateTFIDF(current, neighbor)+1));
+
                 System.out.println("lala");
-                System.out.println( current.getBusiness().getName() + "--> " + neighbor.getBusiness().getName() + ", value:  " +  neighbor.getDistanceFromSource());
+                System.out.println( current.getBusiness().getName() + "--> " + neighbor.getBusiness().getName() + ", value:  " + tfidf);
 
 
-                double alt = currentDistance + (1/calculateTFIDF(current, neighbor));
+                double alt = currentDistance + tfidf;
                 System.out.println(alt);
                 System.out.println("lala");
 
@@ -235,6 +237,19 @@ public class Graph implements Serializable {
                     nodes.remove(neighbor);
                     nodes.add(neighbor);
                 }
+            }
+        }
+
+        for (GraphNode g: previous.keySet()) {
+//                    System.out.println(g.getBusiness().getBusiness_id());
+
+            Business currentBusiness = g.getBusiness();
+            GraphNode previousNode = previous.get(g); // Get the previous node from the map
+
+            if (previousNode != null && previousNode.getBusiness() != null) {
+                System.out.println(previousNode.getBusiness().getName() + "--> " + currentBusiness.getName() + "- " + distances.get(previousNode));
+            } else {
+                System.out.println(currentBusiness.getName() + "--> null");
             }
         }
 

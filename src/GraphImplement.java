@@ -14,31 +14,36 @@ public class GraphImplement {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
-        makeGraph();
+//        makeGraph();
 
 
-//        FileInputStream fileIn = new FileInputStream("src/graphOutput/graphOutput.ser");
-//        ObjectInputStream in =  new ObjectInputStream(fileIn);
-//        Graph g1 = (Graph) in.readObject();
-//        in.close();
-//        fileIn.close();
-//        g1.displayVertexDegrees();
-//        System.out.println();
-//        g1.getDisjointSets();
-//
-//        System.out.println();
-//
-//
-//        GraphNode gn1 = g1.getGraphNodeFromBusinessId("SLccQ_6ElFQ9bEdbRRlH4g");
-//        GraphNode gn2 = g1.getGraphNodeFromBusinessId("YJuPoh3kx6orSAGCKhLYHA");
-//
-//
-//        List<GraphNode> list = g1.getShortestPath(gn1, gn2);
-//        System.out.println("------");
-//        for (GraphNode i : list) {
-//            System.out.println(i.getBusiness().getName());
-//        }
-//        System.out.println(list.size());
+        FileInputStream fileIn = new FileInputStream("src/graphOutput/graphOutput.ser");
+        ObjectInputStream in =  new ObjectInputStream(fileIn);
+        Graph g1 = (Graph) in.readObject();
+        in.close();
+        fileIn.close();
+        g1.displayVertexDegrees();
+        System.out.println();
+        g1.getDisjointSets();
+
+        System.out.println();
+
+
+        GraphNode gn1 = g1.getGraphNodeFromBusinessId("uR--z40doqUJNP5WVsSKLQ");
+        GraphNode gn2 = g1.getGraphNodeFromBusinessId("OfEVAmIZGVAe7OC9fYmbkA");
+
+
+        List<GraphNode> list = g1.getShortestPath(gn1, gn2);
+        System.out.println("------");
+        if (list != null) {
+            for (GraphNode i : list) {
+                System.out.println(i.getBusiness().getName());
+            }
+            System.out.println(list.size());
+        } else {
+            System.out.println("They are not in the same set");
+        }
+
 
 
 //        for (Set<GraphNode> gnSet: g1.getDisjointSetResults().values()) {
