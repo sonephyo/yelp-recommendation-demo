@@ -29,8 +29,8 @@ public class GraphImplement {
         System.out.println();
 
 
-        GraphNode gn1 = g1.getGraphNodeFromBusinessId("uR--z40doqUJNP5WVsSKLQ");
-        GraphNode gn2 = g1.getGraphNodeFromBusinessId("OfEVAmIZGVAe7OC9fYmbkA");
+        GraphNode gn1 = g1.getGraphNodeFromBusinessId("wMQMMxaGq0HPG0mApezXMw");
+        GraphNode gn2 = g1.getGraphNodeFromBusinessId("JpxUoqoiCTe2y0WaIdo05w");
 
 
         List<GraphNode> list = g1.getShortestPath(gn1, gn2);

@@ -105,14 +105,15 @@ public class Graph implements Serializable {
         /**
          * Print out setsize
          */
-        for (Set<GraphNode> component : components.values()) {
-            System.out.println("----");
-            System.out.println(component.size());
-            for (GraphNode b: component) {
-                System.out.println(b.getBusiness().getBusiness_id() + " ---> " + b.getBusiness().getName());
-            }
-            System.out.println("----");
-        }
+//        for (Set<GraphNode> component : components.values()) {
+//            System.out.println("----");
+//            System.out.println(component.size());
+//            for (GraphNode b: component) {
+//                System.out.println(b.getBusiness().getBusiness_id() + " ---> " + b.getBusiness().getName());
+//            }
+//            System.out.println("----");
+//        }
+        System.out.println("Number of disjoint sets: " + components.size());
 
 
     }
@@ -221,14 +222,15 @@ public class Graph implements Serializable {
             for (GraphNode neighbor: chosenMap.get(current)) {
 
                 double tfidf = (1/(calculateTFIDF(current, neighbor)+1));
+//                double tfidf = -calculateTFIDF(current, neighbor);
 
-                System.out.println("lala");
+                System.out.println("----- Connection");
                 System.out.println( current.getBusiness().getName() + "--> " + neighbor.getBusiness().getName() + ", value:  " + tfidf);
 
 
                 double alt = currentDistance + tfidf;
-                System.out.println(alt);
-                System.out.println("lala");
+                System.out.println("----- distances updated: " + alt);
+                System.out.println("-----");
 
 
                 if (alt < distances.get(neighbor)) {
