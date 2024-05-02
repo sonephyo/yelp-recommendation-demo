@@ -7,16 +7,19 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Graph implements Serializable {
 
     private final Map<GraphNode, List<GraphNode>> map = new HashMap<>();
 
 
-    private static HashMap<String, Business> businessHashMap = new HashMap<>();
+    private HashMap<String, Business> businessHashMap = new HashMap<>();
 
     //Map business IDs to review texts
-    private static HashMap<String, String> businessReviewMap = new HashMap<>();
+    private HashMap<String, String> businessReviewMap = new HashMap<>();
+
+    private Map<GraphNode, Set<GraphNode>> disjointSetResults = new HashMap<>();
 
     public Graph() throws IOException, ClassNotFoundException {
         File path = new File("src/file_with_neighbours");
@@ -70,9 +73,11 @@ public class Graph implements Serializable {
         for (GraphNode entry : map.keySet()) {
             System.out.println("-------");
 //            System.out.println(map.get(entry.getKey()).size() + " -> " + entry.getValue().size());
-            System.out.println(entry.getBusiness().getName() + " " + entry.getBusiness().getBusiness_id());
+            System.out.println(entry.getBusiness().getName() + " " + entry.getBusiness().getBusiness_id() + " ,value: " + entry.getDistanceFromSource());
+
             for (GraphNode node: map.get(entry)) {
-                System.out.println(node.getBusiness().getName() + "       - " + node.getBusiness().getBusiness_id());
+                System.out.println(node.getBusiness().getName() + "       - " + node.getBusiness().getBusiness_id() + " ,value: " + node.getDistanceFromSource());
+//                System.out.println("dectect " + node.getBusiness().getRv_text());
             }
             System.out.println("-------");
             count++;
@@ -101,7 +106,12 @@ public class Graph implements Serializable {
          * Print out setsize
          */
         for (Set<GraphNode> component : components.values()) {
+            System.out.println("----");
             System.out.println(component.size());
+            for (GraphNode b: component) {
+                System.out.println(b.getBusiness().getBusiness_id() + " ---> " + b.getBusiness().getName());
+            }
+            System.out.println("----");
         }
 
 
@@ -114,156 +124,151 @@ public class Graph implements Serializable {
         out.close();
         fileOut.close();
     }
+    public void createDisjointSets() {
+        UnionFind uf = new UnionFind(new HashSet<>(map.keySet()));
 
-//    public List<GraphNode> getShortestPath(GraphNode start, GraphNode finish) throws IOException, ClassNotFoundException {
-//        final Map<GraphNode, Double> distances = new HashMap<>();
-//        final Map<GraphNode, GraphNode> previous = new HashMap<>();
-//        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
-//
-//        for (GraphNode vertex : map.keySet()) {
-//            distances.put(vertex, vertex.equals(start) ? 0.0 : Double.MAX_VALUE);
-//            previous.put(vertex, null);
-//            nodes.add(vertex);
-//        }
-//
-//        while (!nodes.isEmpty()) {
-//            GraphNode smallest = nodes.poll();
-//            if (smallest.equals(finish)) {
-//                List<GraphNode> path = new ArrayList<>();
-//                while (previous.get(smallest) != null) {
-//                    path.add(smallest);
-//                    smallest = previous.get(smallest);
-//                }
-//                Collections.reverse(path);
-//                return path;
-//            }
-//
-//            if (distances.get(smallest) == Double.MAX_VALUE) {
-//                break; // No path found
-//            }
-//
-//            for (GraphNode neighbor : map.get(smallest)) {
-//                System.out.println("lala");
-//                System.out.println(neighbor.getBusiness().getName());
-//                System.out.println("--> " + smallest.getBusiness().getName());
-//                System.out.println("lala");
-//                double tfidfScore = calculateTFIDF(smallest, neighbor);
-//                double alt = distances.get(smallest) + tfidfScore;
-//                if (alt < distances.get(neighbor)) {
-//                    distances.put(neighbor, alt);
-//                    previous.put(neighbor, smallest);
-//                    nodes.remove(neighbor);
-//                    nodes.add(neighbor);
-//                }
-//            }
-//            System.out.println("-----");
-//        }
-//        return new ArrayList<>(distances.keySet());
-//    }
+        // Apply union operation for all connected nodes
+        for (GraphNode node : map.keySet()) {
+            for (GraphNode neighbor : map.get(node)) {
+                uf.union(node, neighbor);
+            }
+        }
 
-    //changes with tf-idf as distance
-    public List<GraphNode> getShortestPathWithTFIDF(GraphNode start, GraphNode finish) throws IOException, ClassNotFoundException {
-        final Map<GraphNode, Double> tfidfScores = new HashMap<>();
-        final Map<GraphNode, GraphNode> previous = new HashMap<>();
-        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(tfidfScores::get));
+        // Group nodes by their root to form the disjoint sets
+        Map<GraphNode, Set<GraphNode>> components = new HashMap<>();
+        for (GraphNode node : map.keySet()) {
+            GraphNode root = uf.find(node);
+            components.putIfAbsent(root, new HashSet<>());
+            components.get(root).add(node);
+        }
+        this.disjointSetResults = components;
+    }
 
-        for (GraphNode vertex : map.keySet()) {
-            tfidfScores.put(vertex, vertex.equals(start) ? 0.0 : Double.POSITIVE_INFINITY);
+    public List<GraphNode> getShortestPath(GraphNode start, GraphNode finish) throws IOException, ClassNotFoundException {
+
+
+        if (this.getDisjointSetResults().keySet().isEmpty()) {
+            createDisjointSets();
+        }
+
+        boolean nodesInOneSet = false;
+
+        Set<GraphNode> selectedSet = new HashSet<>();
+
+        for (Set<GraphNode> gnSet: this.getDisjointSetResults().values()) {
+            if (gnSet.contains(start) && gnSet.contains(finish)) {
+                nodesInOneSet = true;
+                selectedSet = gnSet;
+                break;
+            }
+        }
+
+        if (!nodesInOneSet) {
+            return null;
+        }
+
+
+        Map<GraphNode, List<GraphNode>> chosenMap = new HashMap<>();
+
+
+        for (GraphNode gn: selectedSet) {
+            chosenMap.put(gn, map.get(gn));
+        }
+
+        final Map<GraphNode, Double> distances = new HashMap<>(); // Total distance from the start node
+        final Map<GraphNode, GraphNode> previous = new HashMap<>(); // For backtracking from the end node to the start node
+        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(distances::get)); // Making a priority list for polling the smallest GraphNode
+
+        for (GraphNode vertex : chosenMap.keySet()) {
+            distances.put(vertex, vertex.equals(start) ? 0.0 : Double.MAX_VALUE);
             previous.put(vertex, null);
             nodes.add(vertex);
         }
 
         while (!nodes.isEmpty()) {
-            GraphNode highestTfidfNode = nodes.poll();
-            if (highestTfidfNode.equals(finish)) {
-                List<GraphNode> path = new ArrayList<>();
-                while (previous.get(highestTfidfNode) != null) {
-                    path.add(highestTfidfNode);
-                    highestTfidfNode = previous.get(highestTfidfNode);
+            GraphNode current = nodes.poll();
+
+            // When the finish node has been detected
+            if (current.equals(finish)) {
+                for (GraphNode g: previous.keySet()) {
+//                    System.out.println(g.getBusiness().getBusiness_id());
+
+                    Business currentBusiness = g.getBusiness();
+                    GraphNode previousNode = previous.get(g); // Get the previous node from the map
+
+                    if (previousNode != null && previousNode.getBusiness() != null) {
+                        System.out.println(previousNode.getBusiness().getName() + "--> " + currentBusiness.getName() + "- " + distances.get(previousNode));
+                    } else {
+                        System.out.println(currentBusiness.getName() + "--> null");
+                    }
                 }
-                path.add(start);
+
+                final List<GraphNode> path = new ArrayList<>();
+                while (previous.containsKey(current)) {
+                    path.add(current);
+                    current = previous.get(current);
+                }
                 Collections.reverse(path);
                 return path;
             }
 
-            if (Double.isInfinite(tfidfScores.get(highestTfidfNode))) {
-                break; // No path found
+            if (distances.get(current) == Double.MAX_VALUE) {
+                break;
             }
 
-            for (GraphNode neighbor : map.get(highestTfidfNode)) {
+            double currentDistance = distances.get(current);
+
+            for (GraphNode neighbor: chosenMap.get(current)) {
+
+                double tfidf = (1/(calculateTFIDF(current, neighbor)+1));
+
                 System.out.println("lala");
-                System.out.println(neighbor.getBusiness().getName());
-                System.out.println("--> " + highestTfidfNode.getBusiness().getName());
+                System.out.println( current.getBusiness().getName() + "--> " + neighbor.getBusiness().getName() + ", value:  " + tfidf);
+
+
+                double alt = currentDistance + tfidf;
+                System.out.println(alt);
                 System.out.println("lala");
-                double tfidfReciprocal = 1/calculateTFIDF(highestTfidfNode, neighbor);
-                //double tfidfScore = calculateTFIDF(highestTfidfNode, neighbor);
-                double alt = tfidfScores.get(highestTfidfNode) + tfidfReciprocal;
-                if (alt < tfidfScores.get(neighbor)) {
-                    tfidfScores.put(neighbor, alt);
-                    previous.put(neighbor, highestTfidfNode);
+
+
+                if (alt < distances.get(neighbor)) {
+                    distances.put(neighbor, alt);
+                    previous.put(neighbor, current);
                     nodes.remove(neighbor);
                     nodes.add(neighbor);
                 }
             }
-            System.out.println("-----");
         }
-        return null;
+
+        for (GraphNode g: previous.keySet()) {
+//                    System.out.println(g.getBusiness().getBusiness_id());
+
+            Business currentBusiness = g.getBusiness();
+            GraphNode previousNode = previous.get(g); // Get the previous node from the map
+
+            if (previousNode != null && previousNode.getBusiness() != null) {
+                System.out.println(previousNode.getBusiness().getName() + "--> " + currentBusiness.getName() + "- " + distances.get(previousNode));
+            } else {
+                System.out.println(currentBusiness.getName() + "--> null");
+            }
+        }
+
+        return new ArrayList<GraphNode>();
     }
 
-
-
-//    public List<GraphNode> getShortestPathWithTFIDF(GraphNode start, GraphNode finish) throws IOException, ClassNotFoundException {
-//        final Map<GraphNode, Double> tfidfScores = new HashMap<>();
-//        final Map<GraphNode, GraphNode> previous = new HashMap<>();
-//        PriorityQueue<GraphNode> nodes = new PriorityQueue<>(Comparator.comparingDouble(tfidfScores::get));
-//
-//        for (GraphNode vertex : map.keySet()) {
-//            tfidfScores.put(vertex, vertex.equals(start) ? 0.0 : Double.MAX_VALUE);
-//            previous.put(vertex, null);
-//            nodes.add(vertex);
-//        }
-//
-//        while (!nodes.isEmpty()) {
-//            GraphNode highestTfidfNode = nodes.poll();
-//            if (highestTfidfNode.equals(finish)) {
-//                List<GraphNode> path = new ArrayList<>();
-//                while (previous.get(highestTfidfNode) != null) {
-//                    path.add(highestTfidfNode);
-//                    highestTfidfNode = previous.get(highestTfidfNode);
-//                }
-//                path.add(start);
-//                Collections.reverse(path);
-//                return path; // Return the constructed path
-//            }
-//
-//            if (Double.isInfinite(tfidfScores.get(highestTfidfNode))) {
-//                break; // No reachable path found
-//            }
-//
-//            for (GraphNode neighbor : map.get(highestTfidfNode)) {
-//                System.out.println("lala");
-//                System.out.println(neighbor.getBusiness().getName());
-//                System.out.println("--> " + highestTfidfNode.getBusiness().getName());
-//                System.out.println("lala");
-//                double tfidfScore = calculateTFIDF(highestTfidfNode, neighbor);
-//                double alt = tfidfScores.get(highestTfidfNode) + tfidfScore;
-//                if (alt < tfidfScores.get(neighbor)) {
-//                    tfidfScores.put(neighbor, alt);
-//                    previous.put(neighbor, highestTfidfNode);
-//                    nodes.remove(neighbor);
-//                    nodes.add(neighbor);
-//                }
-//            }
-//            System.out.println("-----");
-//        }
-//        return null; // No path found, return null instead of empty list
-//    }
+    private List<GraphNode> getPath(GraphNode finish, Map<GraphNode, GraphNode> previous) {
+        LinkedList<GraphNode> path = new LinkedList<>();
+        for (GraphNode at = finish; at != null; at = previous.get(at)) {
+            path.addFirst(at);
+        }
+        return path;
+    }
 
     public Map<GraphNode, List<GraphNode>> getMap() {
         return map;
     }
 
-    public static Double calculateTFIDF(GraphNode gn1, GraphNode gn2) throws IOException, ClassNotFoundException {
+    public Double calculateTFIDF(GraphNode gn1, GraphNode gn2) throws IOException, ClassNotFoundException {
 
         //String medoidFilename
 
@@ -356,6 +361,7 @@ public class Graph implements Serializable {
         }
         //return weightValues map containing filenames and associated weighted values
         return weightValues.get(gn2.getBusiness().getBusiness_id()+ ".ser");
+
     }
 
 
@@ -393,5 +399,7 @@ public class Graph implements Serializable {
         return Arrays.stream(rawString.split("\\s+")).filter(s -> !s.isEmpty()).toArray(String[]::new);
     }
 
-
+    public Map<GraphNode, Set<GraphNode>> getDisjointSetResults() {
+        return disjointSetResults;
+    }
 }

@@ -69,19 +69,6 @@ public class fileReader implements Serializable {
             out.close();
             fileOut.close();
         }
-
-//        for (Business business : businessHashtable.values()){
-//            System.out.println("Business: " + business.getName() + "(" + business.getLatitude() + ", " + business.getLongitude() + ")" );
-//            List<Business> neighbors = business.getClosestNeighbors();
-//            if(neighbors!= null) {
-//                for (Business neighbor : neighbors) {
-//                    double distance = Haversine(business, neighbor);
-//                    System.out.println(" Neighbor id: " + neighbor.getBusiness_id() + "(" + neighbor.getLatitude() + ", " + neighbor.getLongitude() + ")" + " Name: " + neighbor.getName() +
-//                            ", Distance: " + distance + " km");
-//                }
-//            }
-//            System.out.println();
-//        }
     }
 
     /**

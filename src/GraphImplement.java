@@ -2,10 +2,7 @@ import Graph.Graph;
 import Graph.GraphNode;
 import classes.Business;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,6 +13,53 @@ public class GraphImplement {
 
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
+
+//        makeGraph();
+
+
+        FileInputStream fileIn = new FileInputStream("src/graphOutput/graphOutput.ser");
+        ObjectInputStream in =  new ObjectInputStream(fileIn);
+        Graph g1 = (Graph) in.readObject();
+        in.close();
+        fileIn.close();
+        g1.displayVertexDegrees();
+        System.out.println();
+        g1.getDisjointSets();
+
+        System.out.println();
+
+
+        GraphNode gn1 = g1.getGraphNodeFromBusinessId("uR--z40doqUJNP5WVsSKLQ");
+        GraphNode gn2 = g1.getGraphNodeFromBusinessId("OfEVAmIZGVAe7OC9fYmbkA");
+
+
+        List<GraphNode> list = g1.getShortestPath(gn1, gn2);
+        System.out.println("------");
+        if (list != null) {
+            for (GraphNode i : list) {
+                System.out.println(i.getBusiness().getName());
+            }
+            System.out.println(list.size());
+        } else {
+            System.out.println("They are not in the same set");
+        }
+
+
+
+//        for (Set<GraphNode> gnSet: g1.getDisjointSetResults().values()) {
+//            GraphNode gn3 = g1.getGraphNodeFromBusinessId("qKcEyi0idj7cTQYzbhuKkg");
+//            GraphNode gn4 = g1.getGraphNodeFromBusinessId("8t6mbhBNAT027aeDQ4mR3A");
+//            System.out.println(gnSet.contains(gn3) && gnSet.contains(gn4));
+//        }
+
+//        Map<GraphNode, Double> output = g1.getShortestPath(gn1,gn2);
+//        for (GraphNode gn: output.keySet()) {
+//            System.out.println(gn.getBusiness().getName() + ", " + gn.getBusiness().getBusiness_id() + ": " + output.get(gn));
+//        }
+
+    }
+
+    private static void makeGraph() throws IOException, ClassNotFoundException {
         Graph g1 = new Graph();
 
 
@@ -30,53 +74,18 @@ public class GraphImplement {
                 Business b1  = (Business) in.readObject();
 
                 for (Business businessNeighbor: b1.getClosestNeighbors()) {
-                        g1.addEdge(new GraphNode(b1), new GraphNode(businessNeighbor), GraphNode.haversine(b1, businessNeighbor));
+                    GraphNode gn1 = new GraphNode(b1);
+                    GraphNode gn2 = new GraphNode(businessNeighbor);
+                    g1.addEdge(new GraphNode(b1), new GraphNode(businessNeighbor), 1/g1.calculateTFIDF(gn1, gn2));
                 }
+                System.out.println("---- doing");
                 fileIn.close();
                 in.close();
             }
         }
 
 
-//        g1.convertGraphToSerFile();
-
-        g1.displayVertexDegrees();
-//        System.out.println();
-//        g1.getDisjointSets();
-
-        //"tkootvLq3Be6vDg2oMif6g" - American Leak , "t4G4ugGCp1YbkhLOJhS9Ng" = creamy, 6o7lbtHHMBeE5xCOl3SWlA = classy sweet
-        //JMczMvfpoCnhyjL523dONg =  Boise Thai Noodle House, -oRyTR9br2I3xMbTvGZDXw - Babby Farms Puppy Boutique,
-        //5kr0Xf61tEs5X50PlVLk_g - Summit Family Health
-
-
-        //rxs7GHCeRh9M5iqJ3VKgNA - Pepper Palace -> Ld7K9CU1bgovY0kM_VpUXw - Eat Well Market/ First Tennessee Bank  - pkc3G9rUGLlNSRrxskGwtA
-        //Falafel N Cafe AglkyqtcY_NHlaZHYGJRRQ -> Burger King       - TkIlHiDNcoMt2SL5sA9cCw
-        //eeh3p2qf0unkx6AGmBV4EA - Hertz Car Sales Rivergate -> 509S3lxFEPa_qBeokJg47A - Quiznos
-        //Classic Car Spa ntg2mWpN-kTsUczgI5ae3g -> Goodwill Thrift Store and Donation Center- eNM4YpOYxGqiQFn_pxFQRA
-
-        //Binford Cafe TMEnErP6Y6mMgfmX2wFcLw -> Outback Steakhouse - 06w-nCn3voKD69dxGxYn-A
-        //JMczMvfpoCnhyjL523dONg =  Boise Thai Noodle House -> Canyon Electric - tJa7JuaRV7kWuCllHchxDw
-        //Ahi Sushi Bar wMQMMxaGq0HPG0mApezXMw -> Shoe Carnival - wknUAmMjzjAyNFmwUWd4fQ
-        //Dadz Bar & Grill 6TwYcKp_47VueK7EwNFDxQ -> Hook & Reel Cajun Seafood & Bar - lGwmPQcKEGPIEWKGSoM1kw
-        //*****Balayage Blonde Salon zQJYqfF9S7cXTNkVa9QdPw -> Academic Alliance in Dermatology - YAeRe3GpFPTdDZtSNsr8bQ
-        //Showing no path if neighbor and node
-        //*****Classic Car Spa   - ntg2mWpN-kTsUczgI5ae3g -> Goodwill Thrift Store and Donation Center  - eNM4YpOYxGqiQFn_pxFQRA
-        //rxs7GHCeRh9M5iqJ3VKgNA - Pepper Palace -> Ld7K9CU1bgovY0kM_VpUXw - Eat Well Market/ First Tennessee Bank  - pkc3G9rUGLlNSRrxskGwtA
-        GraphNode gn1 = g1.getGraphNodeFromBusinessId("rxs7GHCeRh9M5iqJ3VKgNA");
-        GraphNode gn2 = g1.getGraphNodeFromBusinessId("pkc3G9rUGLlNSRrxskGwtA");
-
-
-        List<GraphNode> list = g1.getShortestPathWithTFIDF(gn1, gn2);
-        if (list != null) {
-            for (GraphNode i : list) {
-                System.out.println(i.getBusiness().getName());
-            }
-            System.out.println(list.size());
-        } else {
-            System.out.println("No path found between the specified businesses.");
-        }
-
-
+        g1.convertGraphToSerFile();
     }
 
 

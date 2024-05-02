@@ -36,6 +36,7 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
+
         DefaultComboBoxModel<String> comboBoxModel1 = new DefaultComboBoxModel<>();
         comboBoxModel1.addElement("Ahi Sushi Bar");
         comboBoxModel1.addElement("Dadz Bar & Grill");
@@ -109,7 +110,9 @@ public class Main extends JFrame {
     }
 
     private void showPath() throws IOException, ClassNotFoundException{
-        resultArea.setText("Result Area for show path");
+        resultArea.setText("");
+        String userInput1 = userInputField1.getSelectedItem().toString();
+        String userInput2= userInputField2.getSelectedItem().toString();
     }
 
     private void cluster() throws IOException, ClassNotFoundException {
