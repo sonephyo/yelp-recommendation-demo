@@ -84,7 +84,7 @@ public class Graph implements Serializable {
         }
     }
 
-    public void getDisjointSets() {
+    public int getDisjointSets() {
         UnionFind uf = new UnionFind(new HashSet<>(map.keySet()));
 
         // Apply union operation for all connected nodes
@@ -114,6 +114,7 @@ public class Graph implements Serializable {
 //            System.out.println("----");
 //        }
         System.out.println("Number of disjoint sets: " + components.size());
+        return components.size();
 
 
     }

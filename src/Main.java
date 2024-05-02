@@ -136,7 +136,7 @@ public class Main extends JFrame {
 
         g1.displayVertexDegrees();
         System.out.println();
-        g1.getDisjointSets();
+        resultArea.append("Number of disjoint sets: " + g1.getDisjointSets())Z;;
         System.out.println();
 
         if (businessHTName.get(userInput1)== null || businessHTName.get(userInput1) == null) {
